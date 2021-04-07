@@ -9,6 +9,7 @@ use Darryldecode\Cart\Exceptions\UnknownModelException;
 /**
  * Class Cart
  * @package Darryldecode\Cart
+ * Customized for the pakka framework
  */
 class Cart
 {
