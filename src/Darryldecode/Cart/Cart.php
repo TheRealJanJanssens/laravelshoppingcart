@@ -154,7 +154,7 @@ class Cart
      * @return $this
      * @throws InvalidItemException
      */
-    public function add($id, $name = null, $price = null, $quantity = null, $attributes = array(), $conditions = array(), $associatedModel = null)
+    public function add($id, $name = null, $price = null, $quantity = null, $weight = null, $attributes = array(), $conditions = array(), $associatedModel = null)
     {
         // if the first argument is an array,
         // we will need to call add again
@@ -168,6 +168,7 @@ class Cart
                         $item['name'],
                         $item['price'],
                         $item['quantity'],
+                        $item['weight'],
                         Helpers::issetAndHasValueOrAssignDefault($item['attributes'], array()),
                         Helpers::issetAndHasValueOrAssignDefault($item['conditions'], array()),
                         Helpers::issetAndHasValueOrAssignDefault($item['associatedModel'], null)
@@ -179,6 +180,7 @@ class Cart
                     $id['name'],
                     $id['price'],
                     $id['quantity'],
+                    $id['weight'],
                     Helpers::issetAndHasValueOrAssignDefault($id['attributes'], array()),
                     Helpers::issetAndHasValueOrAssignDefault($id['conditions'], array()),
                     Helpers::issetAndHasValueOrAssignDefault($id['associatedModel'], null)
@@ -193,6 +195,7 @@ class Cart
             'name' => $name,
             'price' => Helpers::normalizePrice($price),
             'quantity' => $quantity,
+            'weight' => $weight,
             'attributes' => new ItemAttributeCollection($attributes),
             'conditions' => $conditions
         );
@@ -661,6 +664,26 @@ class Cart
         $count = $items->sum(function ($item) {
             return $item['quantity'];
         });
+
+        return $count;
+    }
+
+    /**
+     * get total weight of items in the cart
+     *
+     * @return int
+     */
+    public function getTotalWeight()
+    {
+	    $package_weight = $this->session->get('settings')['shop_package_weight'] ?? 0;
+        $items = $this->getContent();
+
+        if( $items->isEmpty() ) return 0;
+
+        $count = $items->sum(function($item)
+        {
+            return $item['weight'] * $item['quantity'];
+        }) + $package_weight;
 
         return $count;
     }
